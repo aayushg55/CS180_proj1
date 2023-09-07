@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html style="font-size: 16px;" lang="en"><head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="keywords" content="INTUITIVE">
+    <meta name="description" content="">
+    <title>CS 180 Proj 1</title>
+    <link rel="stylesheet" href="nicepage.css" media="screen">
+<link rel="stylesheet" href="CS-180-Proj-1.css" media="screen">
+    <script class="u-script" type="text/javascript" src="jquery.js" defer=""></script>
+    <script class="u-script" type="text/javascript" src="nicepage.js" defer=""></script>
+    <meta name="generator" content="Nicepage 5.17.1, nicepage.com">
+    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
+    <script type="application/ld+json">{
+		"@context": "http://schema.org",
+		"@type": "Organization",
+		"name": "Site1"
+}</script>
+    <meta name="theme-color" content="#478ac9">
+    <meta property="og:title" content="CS 180 Proj 1">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><meta data-intl-tel-input-cdn-path="intlTelInput/"></head>
+  <body data-home-page="CS-180-Proj-1.html" data-home-page-title="CS 180 Proj 1" class="u-body u-xl-mode" data-lang="en">
+    <section class="u-align-center u-clearfix u-gradient u-section-1" src="" id="sec-4bf2">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <h1 class="u-text u-text-default-lg u-text-default-md u-text-default-sm u-text-default-xl u-title u-text-1"> CS 180 Proj 1: Images of the Russian Empire</h1>
+        <p class="u-large-text u-text u-text-default u-text-variant u-text-2"><i>Colorizing the&nbsp;Prokudin-Gorskii&nbsp;Phot​​o Collection</i>
+        </p>
+        <p class="u-large-text u-text u-text-default u-text-variant u-text-3">Aayush Gupta</p>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-2" id="sec-9125">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="fr-view u-align-center u-clearfix u-rich-text u-text u-text-1">
+          <h3 style="text-align: left;">
+            <span style="font-size: 2.25rem;">Overview</span>
+          </h3>
+          <p style="text-align: left;">Sergei Mikhailovich Prokudin-Gorskii (1863-1944) travelled across the vast Russian Empire to take color photographs of everything he saw. His idea was simple: record three exposures of every scene onto a glass plate using a red, a green, and a blue filter. While the technology to print color photographs did not exist at the time, he envisioned a future in which it would be possible. Fortunately, his RGB glass plate negatives, capturing the last years of the Russian Empire, survived and were purchased in 1948 by the Library of Congress. They have been digitalized and can be found <a class="u-active-none u-border-none u-btn u-button-style u-hover-none u-none u-text-palette-1-base u-btn-1" href="https://www.loc.gov/collections/prokudin-gorskii/" rel="noopener noreferrer" target="_blank">online</a>.
+          </p>
+          <p style="text-align: left;">The goal of this project is to take the digitized Prokudin-Gorskii glass plate images and, using modern image processing techniques, automatically produce a color image with as few visual artifacts as possible.</p>
+        </div>
+        <img class="u-image u-image-contain u-image-default u-image-1" src="images/cathedral.jpg" alt="" data-image-width="390" data-image-height="1024">
+      </div>
+    </section>
+    <section class="u-align-center u-clearfix u-section-3" id="sec-69ff">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="u-border-3 u-border-grey-dark-1 u-line u-line-horizontal u-line-1"></div>
+        <div class="fr-view u-align-center u-clearfix u-rich-text u-text u-text-1">
+          <h3 style="text-align: left;">
+            <span style="font-size: 2.25rem;">Approach</span>
+          </h3>
+          <p style="text-align: left;">I assumed a simple x,y translation model is sufficient for proper alignment. Using the blue channel as the reference channel, I calculated the optimal translations needed to align the red and green channels to the blue channel. I started with a naive brute force algorithm which searches over the window of [-15, 15] x [-15, 15] of displacements and uses some metric to compute the similarity of the shifted and reference channel. I tried two different metrics to measure similarity, Sum of Squared Difference (SSD) and Normalized Cross Correlation (NCC). Both worked equally well, but NCC ran slightly slower so SSD is used.</p>
+          <p style="text-align: left;">I initially ran into issues in aligning the channels, with my algorithm outputting that the optimal translation would be (0,0) for both channels (baseline image). This was resolved by preprocessing the channels by cropping them by 10% on each side to remove border artifacts, combined with using a circular translate function (np.roll) that replaces newly introduced pixels with those that would be cut off by the translation instead of 0's.</p>
+        </div>
+        <div class="u-expanded-width u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-valign-top u-container-layout-1">
+                <img alt="" class="u-image u-image-default u-image-1" data-image-width="390" data-image-height="341" src="images/crop_pad_tests/cathedral.jpg">
+                <p class="u-align-center u-text u-text-2">Baseline</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-valign-top u-container-layout-2">
+                <img alt="" class="u-image u-image-default u-image-2" data-image-width="390" data-image-height="341" src="images/crop_pad_tests/circ_no_crop_cathedral.jpg">
+                <p class="u-align-center u-text u-text-3">With circular translate</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-valign-top u-container-layout-3">
+                <img alt="" class="u-image u-image-default u-image-3" data-image-width="390" data-image-height="341" src="images/crop_pad_tests/circ_crop_cathedral.jpg">
+                <p class="u-align-center u-text u-text-4"> With circular translate &amp; cropping</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-4" id="sec-8187">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-10 u-layout-wrap u-layout-wrap-1">
+          <div class="u-layout" style="">
+            <div class="u-layout-row" style="">
+              <div class="u-container-style u-layout-cell u-left-cell u-size-43 u-size-xs-60 u-layout-cell-1" src="">
+                <div class="u-container-layout u-container-layout-1">
+                  <p class="u-align-left u-text u-text-1">This brute force method is not effective for larger, high-resolution .tif images, as the displacements are much larger than [-15, 15] and searching on a larger space blindly is significantly slow. Thus, I use a pyramid search algorithm which starts by downscaling the image by some power of 2 until it is around 100-200 pixels, and aligning that by searching in an offset range of [-20, 20]. I then scale up the image and the previously computed translation vector by 2, and search in a smaller range of [-2, 2] from the prior. I continue this process until reaching the original image size.<br>
+                    <br>I also apply the naive cropping proceduce from before to the final aligned image, cropping 5% from each side.<br>
+                  </p>
+                </div>
+              </div>
+              <div class="u-align-center u-container-style u-image u-image-contain u-layout-cell u-right-cell u-size-17 u-size-xs-60 u-image-1" src="" data-image-width="300" data-image-height="334">
+                <div class="u-container-layout u-valign-middle u-container-layout-2" src=""></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-5" id="sec-1011">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="u-border-3 u-border-grey-dark-1 u-line u-line-horizontal u-line-1"></div>
+        <div class="fr-view u-align-center u-clearfix u-rich-text u-text u-text-1">
+          <h3 style="text-align: left;">
+            <span style="font-size: 2.25rem;">Bells &amp; Whistles</span>
+          </h3>
+          <h4 style="text-align: left;">
+            <span style="font-weight: 700;">Alignment with Edge Detection</span>
+          </h4>
+          <p style="text-align: left;">The pyramid search algorithm worked well for all images except for emir.tif. In particular, the alignment for the red channel is poor because the red and blue channels vary drastically in brightness, which is visualized to the right.<br id="isPasted">
+            <br>As such, instead of using the RGB brightness values for similarity, I tried aligning edges. This is done by running the Sobel filter (skimage.filters.sobel) on the channels to extract the edges, and running alignment on these processed edges. This works much better for this image and gives similar results to before for the rest, suggesting an edge feature map is more robust than brightness values for alignment.
+          </p>
+        </div>
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img alt="" class="u-image u-image-default u-image-1" data-image-width="2961" data-image-height="2568" src="images/alignment_tests/emir_r.jpg">
+                <p class="u-align-center u-text u-text-2">R channel</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img alt="" class="u-image u-image-default u-image-2" data-image-width="2961" data-image-height="2568" src="images/alignment_tests/emir_b.jpg">
+                <p class="u-align-center u-text u-text-3">B channel</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img alt="" class="u-image u-image-default u-image-3" data-image-width="2961" data-image-height="2568" src="images/alignment_tests/emir_r_edge.jpg">
+                <p class="u-align-center u-text u-text-4">R channel after Sobel</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-4">
+                <img alt="" class="u-image u-image-default u-image-4" data-image-width="2961" data-image-height="2568" src="images/alignment_tests/emir_b_edge.jpg">
+                <p class="u-align-center u-text u-text-5">B channel after Sobel</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-6" id="sec-b1a4">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-valign-top u-container-layout-1">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-1" data-image-width="3702" data-image-height="3209" src="images/alignment_tests/emir_before.jpg">
+                <h4 class="u-align-center u-text u-text-default u-text-1">Before</h4>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-valign-top u-container-layout-2">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-2" data-image-width="3331" data-image-height="2888" src="images/alignment_tests/emir_after.jpg">
+                <h4 class="u-align-center u-text u-text-default u-text-2">After</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-align-center u-clearfix u-section-7" id="sec-63bd">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="fr-view u-align-center u-clearfix u-rich-text u-text u-text-1">
+          <h4 style="text-align: left;">
+            <span style="font-weight: 700; font-size: 1.625rem;">Auto Contrast</span>
+          </h4>
+          <p style="text-align: left;">I also experimented with 3 different automatic contrasting methods using skimage.exposure: rescaling intensities, histogram equalization, and adaptive histogram equalization.</p>
+          <ol>
+            <li style="text-align: left;">
+              <span style="font-weight: 700;">Rescaling image intensities</span>: rescale image intensities such that when considering all channels together, the darkest pixel is zero and the brightest pixel is 1
+            </li>
+            <li style="text-align: left;">
+              <span style="font-weight: 700;">Histogram equalization:&nbsp;</span>Performs global contrast enhancement by computing a histogram across all channels and making it so all intensities are as equally common as possible
+            </li>
+            <li style="text-align: left;">
+              <span style="font-weight: 700;">Adaptive histogram equalization:&nbsp;</span>Performs local contrast enhancement by using histograms as before but over different tile regions of the image
+            </li>
+          </ol>
+          <p style="text-align: left;">Rescaling has little effect on the images. Histogram equalization often creates too much contrast, making the image appear unnatural. Adaptive histogram equalization generally helps bring out local details while not overdoing the contrast.</p>
+          <p style="text-align: left;">Hover over the images to see the original.</p>
+        </div>
+      </div>
+    </section>
+    <section class="u-align-center u-clearfix u-section-8" id="sec-be66">
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <h6 class="u-align-left u-text u-text-font u-text-1">Ex 1) melons.tif</h6>
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-1" data-image-width="3393" data-image-height="2916" 
+                  src="images/rescale/melons.jpg" onmouseover="this.src='images/no_contrast/melons.jpg';" onmouseout="this.src='images/rescale/melons.jpg';">
+                <p class="u-align-center u-text u-text-2">Rescaling</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-2" data-image-width="3393" data-image-height="2916" 
+                  src="images/equalize/melons.jpg" onmouseover="this.src='images/no_contrast/melons.jpg';" onmouseout="this.src='images/equalize/melons.jpg';">
+                <p class="u-align-center u-text u-text-3">Histogram Equalization</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-3" data-image-width="3393" data-image-height="2916" 
+                  src="images/ad_equalize/melons.jpg" onmouseover="this.src='images/no_contrast/melons.jpg';" onmouseout="this.src='images/ad_equalize/melons.jpg';">
+                <p class="u-align-center u-text u-text-4">Adaptive Histogram Equalization</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-align-center u-clearfix u-section-9" id="sec-7711">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <h6 class="u-align-left u-text u-text-font u-text-1">Ex 2) church.tif</h6>
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-1" data-image-width="3393" data-image-height="2916" 
+                  src="images/rescale/church.jpg" onmouseover="this.src='images/no_contrast/church.jpg';" onmouseout="this.src='images/rescale/church.jpg';">
+                <p class="u-align-center u-text u-text-2">Rescaling</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-2" data-image-width="3393" data-image-height="2916" 
+                  src="images/equalize/church.jpg" onmouseover="this.src='images/no_contrast/church.jpg';" onmouseout="this.src='images/equalize/church.jpg';">
+                <p class="u-align-center u-hover-feature u-text u-text-3">Histogram Equalization</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-3" data-image-width="3393" data-image-height="2916" 
+                  src="images/ad_equalize/church.jpg" onmouseover="this.src='images/no_contrast/church.jpg';" onmouseout="this.src='images/ad_equalize/church.jpg';">
+                <p class="u-align-center u-text u-text-4">Adaptive Histogram Equalization</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+    <section class="u-align-center u-clearfix u-section-10" id="sec-ad05">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <h6 class="u-align-left u-text u-text-font u-text-1">Ex 3) town.tif</h6>
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-1" data-image-width="3393" data-image-height="2916" 
+                src="images/rescale/town.jpg" onmouseover="this.src='images/no_contrast/town.jpg';" onmouseout="this.src='images/rescale/town.jpg';">
+                <p class="u-align-center u-text u-text-2">Rescaling</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-2" data-image-width="3393" data-image-height="2916" 
+                src="images/equalize/town.jpg" onmouseover="this.src='images/no_contrast/town.jpg';" onmouseout="this.src='images/equalize/town.jpg';">
+                <p class="u-align-center u-text u-text-3">Histogram Equalization</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img alt="" class="u-image u-image-contain u-image-default u-image-3" data-image-width="3393" data-image-height="2916" 
+                src="images/ad_equalize/town.jpg" onmouseover="this.src='images/no_contrast/town.jpg';" onmouseout="this.src='images/ad_equalize/town.jpg';">
+                <p class="u-align-center u-text u-text-4">Adaptive Histogram Equalization</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-align-center u-clearfix u-section-11" id="sec-2b2f">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <h3 class="u-align-left u-text u-text-default u-text-1">Results</h3>
+        <div class="u-border-3 u-border-grey-dark-1 u-line u-line-horizontal u-line-1"></div>
+        <p class="fr-view u-align-center u-clearfix u-rich-text u-text u-text-1" style="text-align: left;">Hover over the images to see the effect of adaptive histogram equalization.</p>
+        <h4 class="u-align-left u-text u-text-default u-text-2">Provided Examples:</h4>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-12" id="sec-bcdd">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img class="u-image u-image-contain u-image-default u-image-1" src="images/no_contrast/emir.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/ad_equalize/emir.jpg';" onmouseout="this.src='images/no_contrast/emir.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-1">emir.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-2">R: (107, 40), G: (49, 24)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img class="u-image u-image-contain u-image-default u-image-2" src="images/no_contrast/monastery.jpg" alt="" data-image-width="3702" data-image-height="3209"
+                  onmouseover="this.src='images/ad_equalize/monastery.jpg';" onmouseout="this.src='images/no_contrast/monastery.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-3">monastery.jpg</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-4">R: (3, 2), G: (-3, 2)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img class="u-image u-image-contain u-image-default u-image-3" src="images/no_contrast/church.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/ad_equalize/church.jpg';" onmouseout="this.src='images/no_contrast/church.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-5">church.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-6">R: (58, -4), G: (25, 4)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-4">
+                <img class="u-image u-image-contain u-image-default u-image-4" src="images/no_contrast/three_generations.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/ad_equalize/three_generations.jpg';" onmouseout="this.src='images/no_contrast/three_generations.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-7">three_generations.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-8">R: (111, 9), G: (54, 12)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-5">
+                <img class="u-image u-image-contain u-image-default u-image-5" src="images/no_contrast/melons.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/melons.jpg';" onmouseout="this.src='images/no_contrast/melons.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-9">melons.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-10">R: (177, 13), G: (80, 10)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-6">
+                <img class="u-image u-image-contain u-image-default u-image-6" src="images/no_contrast/onion_church.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/onion_church.jpg';" onmouseout="this.src='images/no_contrast/onion_church.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-11">onion_church.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-12">R: (107, 35), G: (52, 25)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-7">
+                <img class="u-image u-image-contain u-image-default u-image-7" src="images/no_contrast/train.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/train.jpg';" onmouseout="this.src='images/no_contrast/train.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-13">train.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-14">R: (85, 29), G: (41, 2)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-8">
+                <img class="u-image u-image-contain u-image-default u-image-8" src="images/no_contrast/tobolsk.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/tobolsk.jpg';" onmouseout="this.src='images/no_contrast/tobolsk.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-15">tobolsk.jpg</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-16">R: (6, 3), G: (3, 3)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-9">
+                <img class="u-image u-image-contain u-image-default u-image-9" src="images/no_contrast/icon.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/icon.jpg';" onmouseout="this.src='images/no_contrast/icon.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-17">icon.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-18">R: (90, 23), G: (42, 17)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-10">
+                <img class="u-image u-image-contain u-image-default u-image-10" src="images/no_contrast/cathedral.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/cathedral.jpg';" onmouseout="this.src='images/no_contrast/cathedral.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-19">cathedral.jpg</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-20">R: (12, 3), G: (5, 2)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-11">
+                <img class="u-image u-image-contain u-image-default u-image-11" src="images/no_contrast/self_portrait.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/self_portrait.jpg';" onmouseout="this.src='images/no_contrast/self_portrait.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-21">self_portrait.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-22">R: (176, 37), G: (78, 29)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-12">
+                <img class="u-image u-image-contain u-image-default u-image-12" src="images/no_contrast/harvesters.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/harvesters.jpg';" onmouseout="this.src='images/no_contrast/harvesters.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-23">harvesters.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-24">R: (124, 14), G: (60, 17)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-13">
+                <img class="u-image u-image-contain u-image-default u-image-13" src="images/no_contrast/sculpture.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/sculpture.jpg';" onmouseout="this.src='images/no_contrast/sculpture.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-25">sculpture.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-26">R: (139, -26), G: (33, -11)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-14">
+                <img class="u-image u-image-contain u-image-default u-image-14" src="images/no_contrast/lady.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                onmouseover="this.src='images/ad_equalize/lady.jpg';" onmouseout="this.src='images/no_contrast/lady.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-27">lady.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-28">R: (120, 13), G: (56, 9)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="u-clearfix u-section-13" id="sec-5dba">
+      <div class="u-clearfix u-sheet u-sheet-1">
+        <h4 class="u-align-left u-text u-text-default u-text-1">Additional Examples:</h4>
+        <div class="u-list u-list-1">
+          <div class="u-repeater u-repeater-1">
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-1">
+                <img class="u-image u-image-contain u-image-default u-image-1" 
+                  src="images/extra_results_no_contrast/bridge.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/extra_results/bridge.jpg';" onmouseout="this.src='images/extra_results_no_contrast/bridge.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-2">bridge.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-3">R: (68, 4), G: (12, -12)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-2">
+                <img class="u-image u-image-contain u-image-default u-image-2" 
+                  src="images/extra_results_no_contrast/desert.jpg" alt="" data-image-width="3702" data-image-height="3209"
+                  onmouseover="this.src='images/extra_results/desert.jpg';" onmouseout="this.src='images/extra_results_no_contrast/desert.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-4">desert.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-5">R: (97, 6), G: (42, 8)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-3">
+                <img class="u-image u-image-contain u-image-default u-image-3" 
+                  src="images/extra_results_no_contrast/lugano.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/extra_results/lugano.jpg';" onmouseout="this.src='images/extra_results_no_contrast/lugano.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-6">lugano.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-7">R: (92, -29), G: (41, -17)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-4">
+                <img class="u-image u-image-contain u-image-default u-image-4" 
+                  src="images/extra_results_no_contrast/Milan_Cathedral.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/extra_results/Milan_Cathedral.jpg';" onmouseout="this.src='images/extra_results_no_contrast/Milan_Cathedral.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-8">Milan_Cathedral.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-9">R: (111, -15), G: (48, -8)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-5">
+                <img class="u-image u-image-contain u-image-default u-image-5" 
+                  src="images/extra_results_no_contrast/Saliuktin_mines.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/extra_results/Saliuktin_mines.jpg';" onmouseout="this.src='images/extra_results_no_contrast/Saliuktin_mines.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-10">Saliuktin_mines.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-11">R: (105, -7), G: (48, 1)</p>
+              </div>
+            </div>
+            <div class="u-container-style u-list-item u-repeater-item">
+              <div class="u-container-layout u-similar-container u-container-layout-6">
+                <img class="u-image u-image-contain u-image-default u-image-6" 
+                  src="images/extra_results_no_contrast/town.jpg" alt="" data-image-width="3331" data-image-height="2888"
+                  onmouseover="this.src='images/extra_results/town.jpg';" onmouseout="this.src='images/extra_results_no_contrast/town.jpg';">
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-12">town.tif</p>
+                <p class="u-align-center u-small-text u-text u-text-default u-text-variant u-text-13">R: (89, 32), G: (10, 16)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+</body></html>
